@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Transaction History
+{% endblock %}
+
+{% block main %}
+    <div class="section">
+        <h2>Transactions</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Amount</th>
+                    <th>Item</th>
+                    <th>Company / Target Account</th>
+                    <th>Payment Method</th>
+                    <th>Category</th>
+                    <th>Notes</th>
+                    <th style="display:none;">ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in transactions[::-1] %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.time | time }}</td>
+                        <td>{{ row.amount | usd }}</td>
+                        <td>{{ row.item | none_look }}</td>
+                        <td>{{ row.target_account }}</td>
+                        <td>{{ row.payment_method }}</td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.notes | none_look }}</td>
+                        <td style="display:none;">{{ row.id }}</td>
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

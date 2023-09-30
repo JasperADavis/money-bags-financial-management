@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Gift Cards
+{% endblock %}
+
+{% block main %}
+    <h1>Gift Cards</h1>
+    <br>
+    <div class="section">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Current Balance</th>
+                    <th>Starting Balance</th>
+                    <th>Modify Data</th>
+                    <th style="display:none;">ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in gift_cards_list %}
+                    <tr>
+                        <td>{{ row.company }}</td>
+                        <td>{{ row.current_balance | usd }}</td>
+                        <td>{{ row.starting_balance | usd }}</td>
+                        <td>
+                            <button onclick="editRow(this)">Edit</button>
+                            <button onclick="cancelEdit(this)" style="display:none">Cancel</button>
+                            <button onclick="saveRow(this)" style="display:none">Save</button>
+                            <button onclick="deleteRow(this)">Delete</button>
+                        </td>
+                        <td style="display:none;">{{ row.id }}</td>
+                    </tr>
+                {% endfor  %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+    <hr>
+    <br>
+
+    <form action="/gift_cards_add" method="post">
+        <div class="form-floating my-2">
+            <input id="company" name="company" placeholder="Company Name" type="text" class="form-control" required autocomplete="off">
+            <label for="company">Company name</label>
+        </div>
+        <div class="form-floating my-2">
+            <input id="starting_balance" name="starting_balance" placeholder="Starting Balance" type="number" class="form-control" required autocomplete="off">
+            <label for="starting_balance">Starting Balance</label>
+        </div>
+        <div class="form-floating my-2">
+            <input id="current_balance" name="current_balance" placeholder="Current Balance" type="number" class="form-control" required autocomplete="off">
+            <label for="current_balance">Current Balance</label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Add Gift Card</button>
+    </form>
+
+    <script src="{{ url_for('static', filename='js/giftCards.js') }}"></script>
+
+{% endblock %}

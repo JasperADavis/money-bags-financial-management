@@ -1,0 +1,347 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Record Transaction
+{% endblock %}
+
+{% block main %}
+    <div class="section">
+        <h1>Select Transaction Type</h1>
+    </div>
+
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="option" id="inlineRadio1" value="option1" checked>
+        <label class="form-check-label" for="inlineRadio1">Expenses</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="option" id="inlineRadio2" value="option2">
+        <label class="form-check-label" for="inlineRadio2">Transfers</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="option" id="inlineRadio3" value="option2">
+        <label class="form-check-label" for="inlineRadio2">Pay Off Credit Card</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="option" id="inlineRadio4" value="option3">
+        <label class="form-check-label" for="inlineRadio3">Record IOU</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="option" id="inlineRadio5" value="option4">
+        <label class="form-check-label" for="inlineRadio3">Pay Off IOU</label>
+    </div>
+
+
+    <div id="form1" class="form">
+        <br>
+        <!-- Form 1 fields -->
+        <h2>Expenses</h2>
+        <div>
+            <form class="mb-3 mx-5 px-5" action="/add_transaction" method="post">
+
+                <div class="form-floating my-2">
+                    <input id="date" name="date" type="date" class="form-control" required>
+                    <label for="date">Date</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="time" name="time" type="time" class="form-control">
+                    <label for="time">Time</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="amount" name="amount" placeholder="Amount" type="text" class="form-control" required>
+                    <label for="amount">Amount (USD)</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="item" name="item" placeholder="Item" type="text" class="form-control" required>
+                    <label for="item">Item</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="company" name="company" placeholder="Company" type="text" class="form-control" required>
+                    <label for="company">Company</label>
+                </div>
+
+                <div class="form-check my-2">
+                    <input class="form-check-input" type="checkbox" id="giftCardCheckbox" name="gc_used">
+                    <label class="form-check-label" for="giftCardCheckbox">
+                        Gift Card Used?
+                    </label>
+                </div>
+
+                <!-- Non-GC Payment Method -->
+                <div class="form-floating my-2" id="payment_method_wrapper" style="display:block;">
+                    <select id="payment_method" name="payment_method" placeholder="Payment Method" class="form-control" required>
+                        <option disabled>Payment Method</option>
+                        <option value="Gift Card Used" data-type="standard">Gift Card Used</option>
+
+                        {% for item in payment_methods %}
+                            <option value="{{ item.name }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="payment_method">Payment Method</label>
+                </div>
+
+                <!-- Gift Card Payment Method -->
+                <div class="form-floating my-2" id="gc_payment_method_wrapper" style="display:none;">
+                    <select id="gc_payment_method" name="gc_payment_method" placeholder="Gift Card Payment Method" class="form-control" required>
+                        <option disabled selected>Gift Card Payment Method</option>
+
+                        {% for item in gc_payment_methods %}
+                            <option value="{{ item.company }}">{{ item.company }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="gc_payment_method">Gift Card Payment Method</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <select id="category" name="category" placeholder="Category" class="form-control" required>
+                        <option disabled>Category</option>
+
+                        {% for item in categories %}
+                            <option value="{{ item }}">{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="category">Category</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="notes" name="notes" placeholder="notes" type="text" class="form-control">
+                    <label for="notes">Notes</label>
+                </div>
+
+                <div class="form-group row">
+                    <div class="">
+                        <button name="submit" type="submit" class="btn btn-primary">Record Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="form2" class="form" style="display: none;">
+        <br>
+        <!-- Form 2 fields -->
+        <h2>Transfer Between Accounts</h2>
+        <div>
+            <form class="mb-3 mx-5 px-5" action="/add_transfer" method="post">
+
+                <div class="form-floating my-2">
+                    <input id="date" name="date" type="date" class="form-control" required>
+                    <label for="date">Date</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="time" name="time" type="time" class="form-control">
+                    <label for="time">Time</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="amount" name="amount" placeholder="Amount" type="text" class="form-control" required>
+                    <label for="amount">Amount (USD)</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <select id="source_account" name="source_account" placeholder="Source Account" class="form-control" required>
+                        <option disabled>Source Account</option>
+
+                        {% for item in payment_methods %}
+                            {% if not item.credit_card %}
+                                <option value="{{ item.name }}">{{ item.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="source_account">Source Account</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <select id="target_account" name="target_account" placeholder="Destination Account" class="form-control" required>
+                        <option disabled>Destination Account</option>
+
+                        {% for item in payment_methods %}
+                            {% if not item.credit_card %}
+                                <option value="{{ item.name }}">{{ item.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="target_account">Destination Account</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="notes" name="notes" placeholder="notes" type="text" class="form-control">
+                    <label for="notes">Notes</label>
+                </div>
+
+                <div class="form-group row">
+                    <div class="">
+                        <button name="submit" type="submit" class="btn btn-primary">Record Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="form3" class="form" style="display: none;">
+        <br>
+        <!-- Form 3 fields -->
+        <h2>Pay Off Credit Card</h2>
+        <div>
+            <form class="mb-3 mx-5 px-5" action="/pay_cc" method="post">
+
+                <div class="form-floating my-2">
+                    <input id="date" name="date" type="date" class="form-control" required>
+                    <label for="date">Date</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="time" name="time" type="time" class="form-control">
+                    <label for="time">Time</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="amount" name="amount" placeholder="Amount" type="text" class="form-control" required>
+                    <label for="amount">Amount (USD)</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <select id="source_account" name="source_account" placeholder="Source Account" class="form-control" required>
+                        <option disabled>Source Account</option>
+
+                        {% for item in payment_methods %}
+                            {% if not item.credit_card %}
+                                <option value="{{ item.name }}">{{ item.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="source_account">Source Account</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <select id="target_account" name="target_account" placeholder="Target Account" class="form-control" required>
+                        <option disabled>Selected Credit Card</option>
+
+                        {% for item in payment_methods %}
+                        {% if item.credit_card %}
+                                <option value="{{ item.name }}">{{ item.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="target_account">Selected Credit Card</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="notes" name="notes" placeholder="notes" type="text" class="form-control">
+                    <label for="notes">Notes</label>
+                </div>
+
+                <div class="form-group row">
+                    <div class="">
+                        <button name="submit" type="submit" class="btn btn-primary">Record Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="form4" class="form" style="display: none;">
+        <br>
+        <!-- Form 4 fields -->
+        <h2>Record IOUs</h2>
+        <div>
+            <form class="mb-3 mx-5 px-5" action="/create_iou" method="post">
+
+                <div class="form-floating my-2">
+                    <input id="date" name="date" type="date" class="form-control" required>
+                    <label for="date">Date</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="time" name="time" type="time" class="form-control">
+                    <label for="time">Time</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="amount" name="amount" placeholder="Amount" type="text" class="form-control" required>
+                    <label for="amount">Amount Owed (USD)</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <select id="iou_direction" name="iou_direction" placeholder="Direction of IOU" class="form-control" required>
+                        <!-- <option disabled>Direction of IOU</option> -->
+                        <option value="to_others">Money Owed To Others</option>
+                        <option value="to_you">Money Owed To You</option>
+                    </select>
+                    <label for="source_account">Direction of IOU</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="company" name="company" placeholder="Company" type="text" class="form-control" required>
+                    <label for="company">Person</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="notes" name="notes" placeholder="notes" type="text" class="form-control">
+                    <label for="notes">Notes</label>
+                </div>
+
+                <div class="form-group row">
+                    <div class="">
+                        <button name="submit" type="submit" class="btn btn-primary">Record Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="form5" class="form" style="display: none;">
+        <br>
+        <!-- Form 5 fields -->
+        <h2>Pay Off IOUs</h2>
+        <div>
+            <form class="mb-3 mx-5 px-5" action="/pay_iou" method="post">
+
+                <div class="form-floating my-2">
+                    <input id="date" name="date" type="date" class="form-control" required>
+                    <label for="date">Date</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="time" name="time" type="time" class="form-control">
+                    <label for="time">Time</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="amount" name="amount" placeholder="Amount" type="text" class="form-control" required>
+                    <label for="amount">Amount Paid (USD)</label>
+                </div>
+                <div class="form-floating my-2">
+                    <select id="iou_direction" name="iou_direction" placeholder="Direction of IOU Payment" class="form-control" required>
+                        <option value="to_others">Money Paid To Others</option>
+                        <option value="to_you">Money Paid To You</option>
+                    </select>
+                    <label for="source_account">Direction of IOU Payment</label>
+                </div>
+                <div class="form-floating my-2">
+                    <input id="company" name="company" placeholder="Company" type="text" class="form-control" required>
+                    <label for="company">Person</label>
+                </div>
+                <div class="form-floating my-2">
+                    <select id="source_account" name="source_account" placeholder="Specified Account" class="form-control" required>
+                        <option disabled>Source Account</option>
+
+                        {% for item in payment_methods %}
+                            <option value="{{ item.name }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="source_account">Specified Account</label>
+                </div>
+
+                <div class="form-floating my-2">
+                    <input id="notes" name="notes" placeholder="notes" type="text" class="form-control">
+                    <label for="notes">Notes</label>
+                </div>
+
+                <div class="form-group row">
+                    <div class="">
+                        <button name="submit" type="submit" class="btn btn-primary">Record Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="static/js/addTransaction.js"></script>
+
+
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Record Transaction
+{% endblock %}
+
+{% block main %}
+    <div class="section">
+        <h2>Record Transaction</h2>
+    </div>
+
+    <div>
+        <form class="mb-3 mx-5 px-5" action="/add_transaction" method="post">
+
+            <div class="form-floating my-2">
+                <input id="date" name="date" type="date" class="form-control" required>
+                <label for="date">Date</label>
+            </div>
+            <div class="form-floating my-2">
+                <input id="time" name="time" type="time" class="form-control">
+                <label for="time">Time</label>
+            </div>
+            <div class="form-floating my-2">
+                <input id="amount" name="amount" placeholder="Amount" type="text" class="form-control" required>
+                <label for="amount">Amount (USD)</label>
+            </div>
+
+            <!-- <style>
+                .input-group-append .input-group-text {
+                  height: 100%; /* Set the height to match the input field */
+                }
+            </style>
+            <div class="form-floating my-2 input-group">
+                <div class="form-floating">
+                    <input id="amount" type="text" class="form-control">
+                    <label for="amount">Amount</label>
+                </div>
+                <div class="input-group-append">
+                    <div class="input-group-text">USD ($)</div>
+                </div>
+            </div> -->
+
+            <div class="form-floating my-2">
+                <input id="item" name="item" placeholder="Item" type="text" class="form-control" required>
+                <label for="item">Item</label>
+            </div>
+
+            <div class="form-floating my-2">
+                <input id="company" name="company" placeholder="Company" type="text" class="form-control" required>
+                <label for="company">Company</label>
+            </div>
+
+            <div class="form-floating my-2">
+                <select id="payment_method" name="payment_method" placeholder="Payment Method" class="form-control" required>
+                    <option disabled>Payment Method</option>
+
+                    {% for item in payment_methods %}
+                        <option value="{{ item.name }}">{{ item.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="payment_method">Payment Method</label>
+            </div>
+
+            <div class="form-floating my-2">
+                <select id="funding_source" name="funding_source" placeholder="Funding Source" class="form-control" required>
+                    <option disabled>Funding Source</option>
+
+                    {% for item in payment_methods %}
+                        {% if not item.on_credit %}
+                            <option value="{{ item.name }}">{{ item.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <label for="funding_source">Funding Source</label>
+            </div>
+
+            <div class="form-floating my-2">
+                <select id="category" name="category" placeholder="Category" class="form-control" required>
+                    <option disabled>Category</option>
+
+                    {% for item in categories %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </select>
+                <label for="category">Category</label>
+            </div>
+
+            <div class="form-floating my-2">
+                <input id="notes" name="notes" placeholder="notes" type="text" class="form-control" required>
+                <label for="notes">Notes</label>
+            </div>
+
+            <div class="form-group row">
+                <div class="">
+                    <button name="submit" type="submit" class="btn btn-primary">Enter Transaction</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+
+<!-- Toggle Switch: Toggles Between Forms -->
+
+<label class="switch">
+    <input type="checkbox" id="toggleSwitch">
+    <span class="slider"></span>
+</label>
+
+<div id="form1" class="form">
+    <!-- Form 1 fields -->
+    <h2>Purchase</h2>
+    <input type="text" name="field1">
+    <input type="text" name="field2">
+</div>
+
+<div id="form2" class="form" style="display: none;">
+    <!-- Form 2 fields -->
+    <h2>Transfer Between Accounts/Payoff Credit Card/Reduce Debt</h2>
+    <input type="text" name="field3">
+    <input type="text" name="field4">
+</div>
+
+<script src="static/script.js"></script>

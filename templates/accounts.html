@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Accounts
+{% endblock %}
+
+{% block main %}
+    <h2>Accounts</h2>
+    <div class="section">
+        <h3>Bank Accounts, Digital Wallets, & Cash</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Account Name</th>
+                    <th>Balance</th>
+                    <th>Type</th>
+                    <th>Interest Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total = {'total': 0} %}
+                {% for row in non_cc_accounts %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        {% if row.balance < 0 %}
+                            <td class="table-danger">{{ row.balance | usd }}</td>
+                            {% if total.update({'total': total.total + row.balance }) %}{% endif %}
+                        {% else %}
+                            <td>{{ row.balance | usd }}</td>
+                            {% if total.update({'total': total.total + row.balance }) %}{% endif %}
+                        {% endif %}
+                        <td>{{ row.type }}</td>
+                        <td>{{ row.percentage | none_look | pct }}</td>
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+        <h4>Total: {{ total.total | usd }}</h3>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="section">
+        <h3>Credit Cards</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Credit Card Name</th>
+                    <th>Current Balance</th>
+                    <th>Payment Due Date</th>
+                    <th>APR</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total2 = {'total': 0} %}
+                {% for row in cc_accounts %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        {% if row.balance < 0 %}
+                            <td class="table-info">{{ row.balance | usd }}</td>
+                            {% if total2.update({'total': total2.total + row.balance }) %}{% endif %}
+                        {% else %}
+                            <td>{{ row.balance | usd }}</td>
+                            {% if total2.update({'total': total2.total + row.balance }) %}{% endif %}
+                        {% endif %}
+                        <td>{{ row.due_date | due_date }}</td>
+                        <td>{{ row.percentage | none_look | pct }}</td>
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+        <h4>Total Credit Card Debt: {{ total2.total | usd }}</h4>
+    </div>
+    <br>
+    {% if (total.total - total2.total) > 0 %}
+        <h3 style="color: green;">Net Total: {{ (total.total - total2.total) | usd }}</h3>
+    {% elif (total.total - total2.total) == 0 %}
+        <h3 style="color: gray;">Net Total: {{ (total.total - total2.total) | usd }}</h3>
+    {% else %}
+        <h3 style="color: red;">Net Total: {{ (total.total - total2.total) | usd }}</h3>
+    {% endif %}
+
+    <br>
+    <hr>
+    <br>
+
+    <form action="/accounts" method="post">
+        <div class="form-floating my-2">
+            <input id="name" name="name" placeholder="Account Name" type="text" class="form-control" required autocomplete="off">
+            <label for="name">Account Name</label>
+        </div>
+
+        <div class="form-floating my-2">
+            <select id="type" name="type" placeholder="Account Type" class="form-control" required>
+                <option disabled>Account Type</option>
+                {% for item in account_types %}
+                    <option value="{{ item.name }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+            <label for="type">Account Type</label>
+        </div>
+
+        <div class="form-floating my-2">
+            <input id="balance" name="balance" placeholder="Current Balance" type="number" class="form-control" min="0" value="0.00" step=".01" required autocomplete="off">
+            <label for="balance">Current Balance</label>
+        </div>
+
+        <div class="form-floating my-2" style="display:none;" id="percentage_block">
+            <input id="percentage" name="percentage" placeholder="Interest Rate/APR" type="number" class="form-control" min="0" value="0.00" step=".0001" required autocomplete="off">
+            <label for="percentage">Interest Rate/APR</label>
+        </div>
+
+        <div class="form-floating my-2" style="display:none;" id="due_date_block">
+            <select id="due_date" name="due_date" placeholder="CC Due Date" class="form-control">
+                <option value="" selected disabled>CC Due Date</option>
+                {% for item in due_date_options %}
+                    <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+            <label for="type">CC Due Date (Day of Month)</label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Add Account</button>
+    </form>
+
+    <script src="{{ url_for('static', filename='js/accounts.js') }}"></script>
+
+{% endblock %}

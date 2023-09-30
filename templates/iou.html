@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    IOU Tracking
+{% endblock %}
+
+{% block main %}
+    <h2>IOU Tracking</h2>
+    <div class="section">
+        <h3>Money Owed To Others</h3>
+        {% if not cum_owed %}
+            <p>You don't currently owe money to others.</p>
+        {% else %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Person</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total = {'total': 0} %}
+                    {% for row in cum_owed %}
+                        <tr>
+                            <td>{{ row.person }}</td>
+                            <td>{{ row.total | usd }}</td>
+                            {% if total.update({'total': total.total + row.total }) %}{% endif %}
+                        </tr>
+                    {% endfor  %}
+
+                </tbody>
+            </table>
+            <h4>Total Owed To Others: {{ total.total | usd }}</h3>
+        {% endif %}
+    </div>
+    <br>
+    <div class="section">
+        <h3>Money Owed To You</h3>
+        {% if not cum_owed_to_you %}
+            <p>No money currently owed to you by others.</p>
+        {% else %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Person</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total2 = {'total': 0} %}
+                    {% for row in cum_owed_to_you %}
+                        <tr>
+                            <td>{{ row.person }}</td>
+                            <td>{{ (row.total * -1) | usd }}</td>
+                            {% if total2.update({'total': total2.total + (row.total * -1) }) %}{% endif %}
+                        </tr>
+                    {% endfor  %}
+
+                </tbody>
+            </table>
+            <h4>Total Owed To You: {{ total2.total | usd }}</h4>
+        {% endif %}
+    </div>
+    <br>
+    {% if total %}
+        {% if (total.total - total2.total) < 0 %}
+            <h3 style="color: green;">Net Owed: {{ (total.total - total2.total) | usd }}</h3>
+            <h6>(More Owed To You)</h6>
+        {% elif (total.total - total2.total) == 0 %}
+            <h3 style="color: gray;">Net Owed: {{ (total.total - total2.total) | usd }}</h3>
+            <h6>(Equal Debts Between You & Others)</h6>
+        {% else %}
+            <h3 style="color: red;">Net Owed: {{ (total.total - total2.total) | usd }}</h3>
+            <h6>(More Owed To Others)</h6>
+        {% endif %}
+    {% else %}
+    <h3></h3>
+    {% endif %}
+    <br>
+    <hr>
+    <br>
+    <div class="section">
+        <!-- TODO Either remove section because sorting functionality coming to transactions page OR link to page with filter pre-applied -->
+        <h3>Transactions: Owing Others</h3>
+        <h6>(Positive = Owed To Others, Negative = Paid Off By You)</h6>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Person</th>
+                    <th>Amount</th>
+                    <!-- <th>Item</th> -->
+                    <th>Notes</th>
+                    <!-- <th>Payback Date</th>
+                    <th>Related Transaction</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in iou_trans %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.time | time }}</td>
+                        <td>{{ row.target_account }}</td>
+                        <td>{{ row.amount | usd }}</td>
+                        <!-- <td>{{ row.item }}</td> -->
+                        <td>{{ row.notes | none_look }}</td>
+                        <!-- <td>{{ row.payback_date | none_look }}</td> -->
+                        <!-- TODO convert transaction_id into link to specified tranaction in transactions table -->
+                        <!-- <td>{{ row.transaction_id | none_look }}</td> -->
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+    </div>
+    <div class="section">
+        <!-- TODO Either remove section because sorting functionality coming to transactions page OR link to page with filter pre-applied -->
+        <h3>Transactions: Owing You</h3>
+        <h6>(Positive = Paid Off By Others, Negative = Owed To You)</h6>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Person</th>
+                    <th>Amount</th>
+                    <!-- <th>Item</th> -->
+                    <th>Notes</th>
+                    <!-- <th>Payback Date</th>
+                    <th>Related Transaction</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in iou_pay %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.time | time }}</td>
+                        <td>{{ row.target_account }}</td>
+                        <td>{{ row.amount | usd }}</td>
+                        <!-- <td>{{ row.item }}</td> -->
+                        <td>{{ row.notes | none_look }}</td>
+                        <!-- <td>{{ row.payback_date | none_look }}</td> -->
+                        <!-- TODO convert transaction_id into link to specified tranaction in transactions table -->
+                        <!-- <td>{{ row.transaction_id | none_look }}</td> -->
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

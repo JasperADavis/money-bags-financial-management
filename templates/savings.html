@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Savings
+{% endblock %}
+
+{% block main %}
+    <h1>Savings</h1>
+    <br>
+    <div class="section">
+        <h2>Accounts</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Account Name</th>
+                    <th>Balance</th>
+                    <th>Interest Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total = {'total': 0} %}
+                {% for row in accounts_list %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        {% if row.balance < 0 %}
+                            <td class="table-danger">{{ row.balance | usd }}</td>
+                            {% if total.update({'total': total.total + row.balance }) %}{% endif %}
+                        {% else %}
+                            <td>{{ row.balance | usd }}</td>
+                            {% if total.update({'total': total.total + row.balance }) %}{% endif %}
+                        {% endif %}
+                        <td>{{ row.percentage | none_look | pct }}</td>
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+        <h4>Total Savings Available: {{ total.total | usd }}</h4>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="section">
+        <h2>Savings Goals/Items</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Item</th>
+                    <th>Total Amount Needed</th>
+                    <th>Currently Allocated</th>
+                    <th>Remaining Needed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total2 = {'total': 0} %}
+                {% set total3 = {'total': 0} %}
+                {% for row in savings_list %}
+                    <tr>
+                        <td>{{ row.category | none_look }}</td>
+                        <td>{{ row.item }}</td>
+                        <td>{{ row.total_amount | usd }}</td>
+                        {% if total2.update({'total': total2.total + row.total_amount }) %}{% endif %}
+                        <td>{{ row.currently_allocated | usd }}</td>
+                        {% if total3.update({'total': total3.total + row.currently_allocated }) %}{% endif %}
+                        <td>{{ (row.total_amount | float - row.currently_allocated | float) | usd }}</td>
+                    </tr>
+                {% endfor  %}
+
+            </tbody>
+        </table>
+        <h4>Total Needed: {{ total2.total | usd }}</h4>
+        <h4>Total Allocated: {{ total3.total | usd }}</h4>
+        <br>
+        <h3>Total Unallocated: {{ (total.total - total3.total) | usd }}</h3>
+    </div>
+
+{% endblock %}
