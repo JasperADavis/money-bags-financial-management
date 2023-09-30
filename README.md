@@ -1,6 +1,5 @@
 # Money Bags | CS50x
 #### Video Demo: https://youtu.be/6ze5NUPtkE4
-#### Description:
 
 ## Purpose
 
